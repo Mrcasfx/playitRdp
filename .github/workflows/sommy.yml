@@ -13,31 +13,41 @@ jobs:
 
     - name: Download and Install Playit
       run: |
-        Invoke-WebRequest -Uri "https://github.com/playit-cloud/playit-agent/releases/download/v0.15.26/playit-windows-x86_64-signed.exe" -OutFile "$env:USERPROFILE\playit.exe"
-        Start-Sleep -Seconds 5  # Give some time for the download to complete
+        $playitPath = "$env:USERPROFILE\playit.exe"
+        Invoke-WebRequest -Uri "https://github.com/playit-cloud/playit-agent/releases/download/v0.15.26/playit-windows-x86_64-signed.exe" -OutFile $playitPath
 
-        
-    # Default, optional.
-    - name: Enable TS
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
-    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
-    - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "p@ssw0rd!" -Force)
+    - name: Enable Remote Desktop (TS)
+      run: |
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
+        Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "p@ssw0rd!" -Force)
 
     - name: Start Playit and Set Up RDP Tunnel
       env:
         PLAYIT_AUTH_KEY: ${{ secrets.PL }} 
       run: |
-        Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "--secret $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
-        Start-Process -FilePath "$env:USERPROFILE\playit.exe" -NoNewWindow
+        $playitPath = "$env:USERPROFILE\playit.exe"
+        Start-Process -FilePath $playitPath -ArgumentList "--secret $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
+        Start-Process -FilePath $playitPath -NoNewWindow
 
-        
-    # Prevent workflow to stop
-    - name: Keep the GitHub Action Runner Alive
+    - name: Create Download Directory
       run: |
-          Start-Sleep -Seconds 11800  # Adjust the duration based on your needs
+        $downloadPath = "C:\Users\runneradmin\Downloads"
+        if (!(Test-Path $downloadPath)) {
+          New-Item -ItemType Directory -Path $downloadPath
+        }
+      shell: powershell
 
+    - name: Install OBS Studio
+      run: |
+        $obsInstaller = "$env:TEMP\obs-studio.exe"
+        Invoke-WebRequest -Uri "https://github.com/obsproject/obs-studio/releases/download/29.1.3/OBS-Studio-29.1.3-Full-Installer-x64.exe" -OutFile $obsInstaller
+        Start-Process -FilePath $obsInstaller -ArgumentList "/S" -NoNewWindow -Wait
+      shell: powershell
 
+    - name: Keep GitHub Action Running Indefinitely
+      run: |
+        while ($true) { Start-Sleep -Seconds 60 }
+      shell: powershell
 
-
-        
