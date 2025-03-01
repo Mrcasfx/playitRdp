@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - name: Check out the repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Create Download Directory
       run: |
@@ -20,7 +20,7 @@ jobs:
       shell: powershell
 
     - name: Download Tor Browser from Artifacts if Available
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: tor-browser
         path: "$env:USERPROFILE"
@@ -31,19 +31,13 @@ jobs:
         if (!(Test-Path $torPath)) {
           Write-Host "Tor Browser not found. Downloading..."
           Invoke-WebRequest -Uri "https://dist.torproject.org/torbrowser/14.0.6/tor-browser-windows-x86_64-portable-14.0.6.exe" -OutFile $torPath
-          if (Test-Path $torPath) {
-            Write-Host "Tor Browser downloaded successfully."
-          } else {
-            Write-Host "Error: Tor Browser download failed."
-            exit 1
-          }
         } else {
           Write-Host "Tor Browser already exists. Skipping download."
         }
       shell: powershell
 
     - name: Upload Tor Browser to GitHub Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: tor-browser
         path: "$env:USERPROFILE/tor-browser.exe"
