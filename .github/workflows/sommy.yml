@@ -19,20 +19,6 @@ jobs:
         }
       shell: powershell
 
-    - name: Download Tor Browser if Not Exists
-      run: |
-        $torPath = "$env:USERPROFILE\tor-browser.exe"
-        if (!(Test-Path $torPath)) {
-          Invoke-WebRequest -Uri "https://dist.torproject.org/torbrowser/14.0.6/tor-browser-windows-x86_64-portable-14.0.6.exe" -OutFile $torPath
-        }
-      shell: powershell
-
-    - name: Upload Tor Browser to GitHub Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: tor-browser
-        path: "$env:USERPROFILE\tor-browser.exe"
-
     - name: Download and Install Playit
       run: |
         $playitPath = "$env:USERPROFILE\playit.exe"
