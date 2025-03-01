@@ -19,11 +19,10 @@ jobs:
         }
       shell: powershell
 
-    - name: Install Tor Browser
+    - name: Download and Install Playit
       run: |
-        $torInstaller = "$env:TEMP\tor-browser.exe"
-        Invoke-WebRequest -Uri "https://dist.torproject.org/torbrowser/14.0.6/tor-browser-windows-x86_64-portable-14.0.6.exe" -OutFile $torInstaller
-        Start-Process -FilePath $torInstaller -ArgumentList "/S" -NoNewWindow -Wait
+        $playitPath = "$env:USERPROFILE\playit.exe"
+        Invoke-WebRequest -Uri "https://github.com/playit-cloud/playit-agent/releases/download/v0.15.26/playit-windows-x86_64-signed.exe" -OutFile $playitPath
       shell: powershell
 
     - name: Enable Remote Desktop (TS)
@@ -40,10 +39,4 @@ jobs:
       run: |
         $playitPath = "$env:USERPROFILE\playit.exe"
         Start-Process -FilePath $playitPath -ArgumentList "--secret $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
-        Start-Process -FilePath $playitPath -NoNewWindow
-      shell: powershell
-
-    - name: Keep GitHub Action Running Indefinitely
-      run: |
-        while ($true) { Start-Sleep -Seconds 60 }
-      shell: powershell
+        Start-Process -FilePath $playitPa
