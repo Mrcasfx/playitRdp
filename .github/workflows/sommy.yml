@@ -1,4 +1,3 @@
-
 name: Playit RDP Tunnel
 
 on:
@@ -20,17 +19,11 @@ jobs:
         }
       shell: powershell
 
-    - name: Install OBS Studio
+    - name: Install Tor Browser
       run: |
-        $obsInstaller = "$env:TEMP\obs-studio.exe"
-        Invoke-WebRequest -Uri "https://github.com/obsproject/obs-studio/releases/download/29.1.3/OBS-Studio-29.1.3-Full-Installer-x64.exe" -OutFile $obsInstaller
-        Start-Process -FilePath $obsInstaller -ArgumentList "/S" -NoNewWindow -Wait
-      shell: powershell
-
-    - name: Download and Install Playit
-      run: |
-        $playitPath = "$env:USERPROFILE\playit.exe"
-        Invoke-WebRequest -Uri "https://github.com/playit-cloud/playit-agent/releases/download/v0.15.26/playit-windows-x86_64-signed.exe" -OutFile $playitPath
+        $torInstaller = "$env:TEMP\tor-browser.exe"
+        Invoke-WebRequest -Uri "https://dist.torproject.org/torbrowser/14.0.6/tor-browser-windows-x86_64-portable-14.0.6.exe" -OutFile $torInstaller
+        Start-Process -FilePath $torInstaller -ArgumentList "/S" -NoNewWindow -Wait
       shell: powershell
 
     - name: Enable Remote Desktop (TS)
