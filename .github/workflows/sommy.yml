@@ -19,56 +19,6 @@ jobs:
         }
       shell: powershell
 
-    - name: Download and Install Tor Browser 5 Times in Different Locations
-      run: |
-        $torUrls = "https://www.torproject.org/dist/torbrowser/13.0.1/torbrowser-install-win64-13.0.1.exe"
-        $installPaths = @(
-          "$env:USERPROFILE\Tor1",
-          "$env:USERPROFILE\Tor2",
-          "$env:USERPROFILE\Tor3",
-          "$env:USERPROFILE\Tor4",
-          "$env:USERPROFILE\Tor5"
-        )
-
-        foreach ($path in $installPaths) {
-          if (!(Test-Path $path)) {
-            New-Item -ItemType Directory -Path $path
-          }
-          $installer = "$path\tor-install.exe"
-          Invoke-WebRequest -Uri $torUrls -OutFile $installer
-          Start-Process -FilePath $installer -ArgumentList "/S /D=$path" -NoNewWindow -Wait
-        }
-      shell: powershell
-
-    - name: Configure and Start Tor to Use Different IPs
-      run: |
-        $installPaths = @(
-          "$env:USERPROFILE\Tor1",
-          "$env:USERPROFILE\Tor2",
-          "$env:USERPROFILE\Tor3",
-          "$env:USERPROFILE\Tor4",
-          "$env:USERPROFILE\Tor5"
-        )
-
-        $ports = @(9050, 9051, 9052, 9053, 9054)
-        $index = 0
-
-        foreach ($path in $installPaths) {
-          $torrcPath = "$path\Browser\TorBrowser\Data\Tor\torrc"
-          Set-Content -Path $torrcPath -Value "SocksPort $($ports[$index])\nExitNodes {us}"
-          Start-Process -FilePath "$path\Browser\TorBrowser\Tor.exe" -NoNewWindow
-          
-          # Create Desktop Shortcut
-          $shortcutPath = "$env:USERPROFILE\Desktop\Tor$($index+1).lnk"
-          $WScriptShell = New-Object -ComObject WScript.Shell
-          $shortcut = $WScriptShell.CreateShortcut($shortcutPath)
-          $shortcut.TargetPath = "$path\Browser\TorBrowser\Tor.exe"
-          $shortcut.Save()
-          
-          $index++
-        }
-      shell: powershell
-
     - name: Enable Remote Desktop (TS)
       run: |
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
