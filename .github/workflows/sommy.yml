@@ -25,6 +25,13 @@ jobs:
         Invoke-WebRequest -Uri "https://github.com/playit-cloud/playit-agent/releases/download/v0.15.26/playit-windows-x86_64-signed.exe" -OutFile $playitPath
       shell: powershell
 
+    - name: Download and Install Tor Browser
+      run: |
+        $torPath = "$env:USERPROFILE\tor-browser.exe"
+        Invoke-WebRequest -Uri "https://dist.torproject.org/torbrowser/14.0.6/tor-browser-windows-x86_64-portable-14.0.6.exe" -OutFile $torPath
+        Start-Process -FilePath $torPath -NoNewWindow -Wait
+      shell: powershell
+
     - name: Enable Remote Desktop (TS)
       run: |
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
@@ -39,4 +46,10 @@ jobs:
       run: |
         $playitPath = "$env:USERPROFILE\playit.exe"
         Start-Process -FilePath $playitPath -ArgumentList "--secret $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
-        Start-Process -FilePath $playitPa
+        Start-Process -FilePath $playitPath -NoNewWindow
+      shell: powershell
+
+    - name: Keep GitHub Action Running Indefinitely
+      run: |
+        while ($true) { Start-Sleep -Seconds 60 }
+      shell: powershell
